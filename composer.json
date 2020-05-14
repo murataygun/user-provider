@@ -1,0 +1,24 @@
+{
+    "name": "murataygun/user-provider",
+    "description": "User provider system for Laravel thirty party auth",
+    "keywords": ["laravel", "user provider", "oauth", "social login"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Murat AYGÜN",
+            "email": "info@murataygun.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "murataygun\\UserProvider\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "murataygun\\UserProvider\\UserProviderServiceProvider"
+            ]
+        }
+    }
+}
