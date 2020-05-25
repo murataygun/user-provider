@@ -15,6 +15,7 @@ use ReflectionClass;
 
 /**
  * Class AbstractUserProviderServiceProvider
+ * @author Murat AYGÜN <info@murataygun.com>
  * @package murataygun\UserProvider
  */
 abstract class AbstractUserProviderServiceProvider extends ServiceProvider
@@ -27,7 +28,7 @@ abstract class AbstractUserProviderServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->mergeConfig();
+        $this->mergeConfigFrom(__DIR__ . '/config/user-provider-' . $this->makeGrant()->getIdentifier() . '.php', 'user-provider-' . $this->makeGrant()->getIdentifier());
         app()->afterResolving(AuthorizationServer::class, function (AuthorizationServer $server) {
             $server->enableGrantType(
                 $this->makeGrant(), Passport::tokensExpireIn()
@@ -49,35 +50,8 @@ abstract class AbstractUserProviderServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->publishConfig();
-    }
-
-    private function getDir()
-    {
-        $reflector = new ReflectionClass(get_class($this));
-        $filename = $reflector->getFileName();
-        return dirname($filename);
-    }
-
-    private function publishConfig()
-    {
-        $configPath = $this->getDir() . '/config';
-        $configFiles = array_diff(scandir($configPath), array('.', '..'));
-
-        foreach ($configFiles as $configFile) {
-            $this->publishes([
-                $configPath . '/' . $configFile => config_path($configFile)
-            ], 'config');
-        }
-    }
-
-    private function mergeConfig()
-    {
-        $configPath = $this->getDir() . '/config';
-        $configFiles = array_diff(scandir($configPath), array('.', '..'));
-
-        foreach ($configFiles as $configFile) {
-            $this->mergeConfigFrom($configPath . '/' . $configFile, str_replace(".php", "", $configFile));
-        }
+        $this->publishes([
+            __DIR__ . '/config/user-provider-' . $this->makeGrant()->getIdentifier() . '.php' => config_path('user-provider-' . $this->makeGrant()->getIdentifier() . '.php')
+        ], 'config');
     }
 }

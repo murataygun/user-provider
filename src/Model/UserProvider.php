@@ -34,10 +34,10 @@ class UserProvider extends Model
     ];
 
     /**
-     * @return MorphTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function user()
     {
-        return $this->morphTo();
+        return $this->belongsTo(config('user-provider.models.user'));
     }
 }
