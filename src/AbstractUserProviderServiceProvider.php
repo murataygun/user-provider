@@ -9,6 +9,7 @@ namespace murataygun\UserProvider;
 
 use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Passport;
+use Laravel\Passport\PassportServiceProvider;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\Grant\AbstractGrant;
 use ReflectionClass;
@@ -18,7 +19,7 @@ use ReflectionClass;
  * @author Murat AYGÜN <info@murataygun.com>
  * @package murataygun\UserProvider
  */
-abstract class AbstractUserProviderServiceProvider extends ServiceProvider
+abstract class AbstractUserProviderServiceProvider extends PassportServiceProvider
 {
 
     /**
@@ -28,12 +29,23 @@ abstract class AbstractUserProviderServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->mergeConfigFrom(__DIR__ . '/config/user-provider-' . $this->makeGrant()->getIdentifier() . '.php', 'user-provider-' . $this->makeGrant()->getIdentifier());
+        $this->mergeConfigFrom($this->getDir() . '/config/user-provider-' . $this->getIdentifier() . '.php', 'user-provider-' . $this->getIdentifier());
         app()->afterResolving(AuthorizationServer::class, function (AuthorizationServer $server) {
             $server->enableGrantType(
                 $this->makeGrant(), Passport::tokensExpireIn()
             );
         });
+    }
+
+    /**
+     * @return string
+     * @throws \ReflectionException
+     */
+    private function getDir()
+    {
+        $reflector = new ReflectionClass(get_class($this));
+        $filename = $reflector->getFileName();
+        return dirname($filename);
     }
 
     /**
@@ -44,6 +56,11 @@ abstract class AbstractUserProviderServiceProvider extends ServiceProvider
     abstract protected function makeGrant();
 
     /**
+     * @return mixed
+     */
+    abstract protected function getIdentifier();
+
+    /**
      * Bootstrap services.
      *
      * @return void
@@ -51,7 +68,7 @@ abstract class AbstractUserProviderServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__ . '/config/user-provider-' . $this->makeGrant()->getIdentifier() . '.php' => config_path('user-provider-' . $this->makeGrant()->getIdentifier() . '.php')
+            $this->getDir() . '/config/user-provider-' . $this->getIdentifier() . '.php' => config_path('user-provider-' . $this->getIdentifier() . '.php')
         ], 'config');
     }
 }
