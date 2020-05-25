@@ -25,7 +25,7 @@ class UserProvider extends Model
     /**
      * @var bool
      */
-    protected $timestamps = true;
+    public $timestamps = true;
     /**
      * @var string[]
      */
